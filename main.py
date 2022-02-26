@@ -50,7 +50,7 @@ def blockDiagCpp(matrices):
     sizes=[k.shape[0] for k in matrices]
     N=sum(k)
     if min(k.shape[0]==k.shape[1] for k in matrices):
-        raise raise ValueError('all matrices are not square.')
+        raise ValueError('all matrices are not square.')
     blockDiag=np.zeros([N,N])
     i=0
     for m in matrices:
@@ -66,3 +66,19 @@ def build_initial_graph(Y,m):
     A=np.zeros(n,n)
 def learn_k_component_graph(S,is_data_matrix=False, k=1,w0="naive",lb=0,ub=10**4,alpha=0,):
     return None
+
+def w_init(w0, Sinv):
+    """
+    Params: 
+        w0: straing ("qp" or "naive")
+        Sinv: numpy array
+    """
+    if type(w0) == str:
+        if w0 == "qp":
+            R = vecLmat(Sinv.shape)
+            #qp = cvx.solvers.qp(np.outer(R, R), )
+            w0 = 0
+        elif w0 == "naive":
+            w0 = Linv(Sinv)
+            w0[w0 < 0] = 0
+    return w0
