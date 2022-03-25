@@ -1,6 +1,7 @@
 import numpy as np
 from utilscc import*
 from ObjectiveFunction import*
+from Operators import*
 # this module contains implementations of the algorithms
 # proposed in L. Zhao et. al. "Optimization Algorithms for
 # Graph Laplacian Estimation via ADMM and MM", IEEE Trans. Sign. Proc. 2019.
@@ -42,40 +43,28 @@ def learn_laplacian_gle_mm(S, A_mask = None, alpha = 0, maxiter = 10000, reltol 
     z[mask] = wk
     fun = vanilla_objective(La(z), K)
   for k in np.arange(maxiter):
-    w_aug = wk[:]
-    w_aug.append(1 / p)
+    w_aug =np.concatenate(wk,np.array([1/p]))
     G_aug_t = G.T * w_aug
-    G_aug = t(G_aug_t)
-    Q = G_aug_t @ solve(G_aug @ t(G), G_aug)
-    Q = Q[1:m, 1:m]
-    wk = sqrt(diag(Q) / diag(R))
-    if (record_objective) {
-      z = rep(0, .5 * p * (p - 1))
-      z[mask] = wk
-      fun = c(fun, vanilla.objective(L(z), K))
-    }
-    if (verbose)
-       pb$tick()
-    has_converged = norm(w - wk, "2") / norm(w, "2") < reltol
-    if (has_converged && k > 1) break
+    G_aug = G_aug_t.T
+    Q = G_aug_t @ np.linalg.lstsq(G_aug @ G.T, G_aug)
+    Q = Q[:m, :m]
+    wk = (np.diagonal(Q) / np.diagonal(R))**0.5
+    has_converged = np.linalg.norm(w - wk, "2") / np.linalg.norm(w, "2") < reltol
+    if (has_converged and k > 1):
+        break
     w = wk
-  }
-  z = rep(0, .5 * p * (p - 1))
+  z = np.zeros((p*(p-1))//2)
   z[mask] = wk
-  results = list(Laplacian = L(z), Adjacency = A(z), maxiter = k,
-                  convergence = has_converged)
-  if (record_objective)
-    results$obj_fun = fun
-  return(results)
-}
+  results = {"Laplacian" : La(z), "Adjacency" : Ad(z), "maxiter" : k,"convergence" : has_converged}
+  return results
 
 
-obj_func = function(E, K, w, J) {
-  p = ncol(J)
-  EWEt = E @ diag(w) @ t(E)
+def obj_func(E, K, w, J) {
+  p = J.shpae[1]
+  EWEt = E @ np.diag(w) @ t(E)
   Gamma = EWEt + J
-  lambda = eigval_sym(Gamma)[2:p]
-  return(sum(diag(E @ diag(w) @ t(E) @ K)) - sum(log(lambda)))
+  lambd = np.linalg.eigh(Gamma)[0][1:p]
+  return np.sum(np.diagonal(E @ np.diag(w) @ E.T @ K)) - np.sum(np.log(lambd)))
 }
 
 #' @title Learn the weighted Laplacian matrix of a graph using the ADMM method
@@ -98,14 +87,14 @@ obj_func = function(E, K, w, J) {
 #'             Optimization Algorithms for Graph Laplacian Estimation via ADMM and MM.
 #'             IEEE Trans. on Signal Processing, vol. 67, no. 16, pp. 4231-4244, Aug. 2019
 #' @export
-learn_laplacian_gle_admm = function(S, A_mask = NULL, alpha = 0, rho = 1, maxiter = 10000,
-                                     reltol = 1e-5, record_objective = FALSE, verbose = TRUE) {
-  p = nrow(S)
-  if (is.null(A_mask))
-    A_mask = matrix(1, p, p) - diag(p)
-  Sinv = MASS::ginv(S)
+def learn_laplacian_gle_admm(S, A_mask = None, alpha = 0, rho = 1, maxiter = 10000,\
+                                     reltol = 1e-5, record_objective = False, verbose = True) {
+  p = S.shape[0]
+  if A_mask==None:
+    A_mask = np.ones(p, p) - np.eye(p)
+  Sinv = np.linalg.pinv(S)
   w = w_init("naive", Sinv)
-  Theta = L(w)
+  Theta = La(w)
   Yk = Theta
   Ck = Theta
   C = Theta
@@ -113,15 +102,11 @@ learn_laplacian_gle_admm = function(S, A_mask = NULL, alpha = 0, rho = 1, maxite
   mu = 2
   tau = 2
   # l1-norm penalty factor
-  J = matrix(1, p, p) / p
-  H = 2 * diag(p) - p * J
+  J = np.ones(p,p) / p
+  H = 2 * np.eye(p) - p * J
   K = S + alpha * H
-  if (verbose)
-    pb = progress::progress_bar$new(format = "<:bar> :current/:total  eta: :eta",
-                                     total = maxiter, clear = FALSE, width = 80)
-  if (record_objective)
-    fun = c(vanilla.objective(Theta, K))
   # ADMM loop
+  assert False, "decomposition QR à voir demain"
   P = qr.Q(qr(rep(1, p)), complete=TRUE)[, 2:p]
   for (k in c(1:maxiter)) {
     Gamma = t(P) @ ((K + Yk) / rho - Ck) @ P
