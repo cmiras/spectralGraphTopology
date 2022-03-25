@@ -1,4 +1,5 @@
 import numpy as np
+
 def laplacian_objectiveFunction(Lw, U, lambd, K, beta):
   return laplacian_likelihood(Lw, lambd, K) +laplacian_prior(beta, Lw, lambd, U)
 
