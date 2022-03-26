@@ -46,7 +46,7 @@ def metrics(A,B,eps):
     specificity = tn / (tn + fp)
     accuracy = (tp + tn) / (tp + tn + fp + fn);
     return [fscore,recall,specificity,accuracy]
-def relative_error(A, B)
+def relative_error(A, B):
   return np.linalg.norm(A - B) / np.linalg.norm(B)#have R and python the same default norm on matrices
 
 

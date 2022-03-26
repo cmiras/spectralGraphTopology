@@ -2,16 +2,18 @@ from qpsolvers import*
 from operators import*
 import numpy as np
 def w_init(w0, Sinv):
-  if type(wO) is string:
+  if type(w0) is type("ab"):
     if (w0 == "qp"):
-      R = vecLmat(ncol(Sinv))
-      qp <- assert False,idk#quadprog::solve.QP(crossprod(R), t(R) %*% vec(Sinv), diag(ncol(R)))
-      w0 <- qp$solution
+      R = vecLmat(Sinv.shape[1])
+      qp = 0
+      assert False,"idk"
+      #quadprog::solve.QP(crossprod(R), t(R) %*% vec(Sinv), diag(ncol(R)))
+      w0 = qp#qp$solution
     elif (w0 == "naive"):
       w0 = Linv(Sinv)
       w0[w0 < 0] = 0
-  return <o
-}
+  return w0
+
 
 
 def laplacian_w_update(w, Lw, U, beta, lambd, K):
@@ -64,8 +66,7 @@ def bipartite_V_update(Aw, z):
   n = Aw.shape[1]
   V = np.linalg.eigh(Aw)[1]
   assert False, "j'ai pas compris"
-  return(cbind(V[, 1:(.5*(n - z))], V[, (1 + .5*(n + z)):n]))
-}
+  return 0#cbind(V[, 1:(.5*(n - z))], V[, (1 + .5*(n + z)):n]))
 
 
 def joint_U_update(Lw,k):
@@ -81,9 +82,10 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
   q = Lw.shape[1] - k
   d = np.diagonal(U.T @ Lw @ U)
   # unconstrained solution as initial point
-  lambd = .5 * (d + (d^2 + 4 / beta)**0.5)
+  print(d,U.T @ Lw @ U)
+  lambd = .5 * (d + (d**2 + 4 / beta)**0.5)
   eps = 1e-9
-  condition = [lambd[q] - ub) <= eps,\
+  condition = [(lambd[q] - ub) <= eps,\
                  (lambd[0] - lb) >= -eps,\
                  (lambd[1:q] - lambd[0:(q-1)]) >= -eps]
   if min(condition):
@@ -93,9 +95,9 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
     lesser_lb = lambd < lb
     lambd[greater_ub] = ub
     lambd[lesser_lb] = lb
-  condition <- [(lambd[q] - ub) <= eps,\
+  condition = [(lambd[q] - ub) <= eps,\
                  (lambd[0] - lb) >= -eps,\
-                 (lambd[1:q] - lambda[:(q-1)]) >= -eps)]
+                 (lambd[1:q] - lambd[:(q-1)]) >= -eps]
   if min(condition):
     return (lambd)
   else:
@@ -116,11 +118,11 @@ def bipartite_psi_update(V, Aw, lb = -np.Inf, ub = np.Inf):
 
 
 
-joint.lambda_update <- function(...) {
+"""joint.lambda_update <- function(...) {
   return(laplacian.lambda_update(...))
 }
 
 
 joint.psi_update <- function(...) {
   return(bipartite.psi_update(...))
-}
+}"""

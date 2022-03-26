@@ -23,17 +23,17 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
   A = build_initial_graph(Y, m)
   n = A.shape[1]
   S = np.ones(n,n)/n
-  DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0))
+  DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0)))
   LS =  DS - .5 * (S + S.T)
-  DA =- np.diag(.5 * (np.sum(A,axis=1) + np.sum(A,axis=0))
-  LA <- DA - .5 * (A + A.T)
-  if (k == 1)
+  DA =- np.diag(.5 * (np.sum(A,axis=1) + np.sum(A,axis=0)))
+  LA = DA - .5 * (A + A.T)
+  if (k == 1):
     F = np.linalg.eigh(LA)[1][:,0:k]
-  else
+  else:
     F = np.linalg.eigh(LA)[1][:,0:k]
   # bounds for variables in the QP solver
-  bvec = [1, np.array(np.arange(n+1)]
-  Amat = [np.arange(1,n+1),np.eyes(n)]
+  bvec = np.concatenate(np.array([1]), np.zeros(n))
+  Amat = np.concatenate([np.ones([n,1]),np.eye(n)],axis=1)
   lmd_seq = np.array([lmd])
   #pb <- progress::progress_bar$new(format = "<:bar> :current/:total  eta: :eta  lambda: :lmd  null_eigvals: :null_eigvals",
     #                               total = maxiter, clear = FALSE, width = 100)
@@ -43,7 +43,7 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
       p = A[i,: ] - .5 * lmd * V[i,:]
       qp = solve_qp(P, q, G, h, A, b)#quadprog::solve.QP(Dmat = diag(n), dvec = p, Amat = Amat, bvec = bvec, meq = 1)
       S[i, ] = qp#qp$solution
-      DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0))
+      DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0)))
       LS =  DS - .5 * (S + S.T)
     F = np.linalg.eigh(LS)[1][:, 0:k]
     eig_vals = np.linalg.eigh(LS)[0]
@@ -57,8 +57,6 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
     else:
       break
     lmd_seq.append(lmd)
-  }
-  LS[abs(LS) < edgetol] <- 0
-  AS <- np.diag(np.diagonal(LS)) - LS
-  return {"Laplacian" : LS, "Adjacency" : AS, "eigenvalues" : eig_vals,"lmd_seq" : lmd_seq, "elapsed_time" : time_seq)}
-}
+  LS[abs(LS) < edgetol] = 0
+  AS = np.diag(np.diagonal(LS)) - LS
+  return {"Laplacian" : LS, "Adjacency" : AS, "eigenvalues" : eig_vals,"lmd_seq" : lmd_seq, "elapsed_time" : time_seq}

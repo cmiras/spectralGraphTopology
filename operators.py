@@ -47,7 +47,7 @@ def Lstar(M):
 #
 # @param n number of columns/rows
 # @return M the composition of Lstar and L
-def Mmat(const int n)
+def Mmat(n):
   e = np.zeros(n)
   M = np.zeros(n, n)
   e[0] = 1
@@ -60,9 +60,9 @@ def Mmat(const int n)
 
 def Astar(M):
   N = M.shape[1]
-  k = (N * (N - 1)//2
-  j = 0;
-  l = 1;
+  k = (N * (N - 1))//2
+  j = 0
+  l = 1
   w=np.zeros(k)
 
   for i in np.arange(k):
@@ -92,10 +92,10 @@ def vec(M):
   return M.T.flatten()
 
 def vecLmat(n):
-  ncols = (n * (n - 1)//2
+  ncols = (n * (n - 1))//2
   nrows = n * n
 
-  e = np.zeros(ncols);
+  e = np.zeros(ncols)
   R = np.zeros(nrows,ncols)
   e[0] = 1;
   R[0] = vec(L(e));
@@ -113,7 +113,7 @@ def vecLmat(n):
 # @param M Laplacian matrix
 # @return w the weight vector of the graph
 def Linv(M):
-  N = M.shape[0]
+  n = M.shape[0]
   return np.concatenate(np.array([-M[i][i+1:] for i in np.arange(n)]))
 
 #get the n(n-1)//2 vector from the laplacian(or A?)
