@@ -29,17 +29,20 @@ def La(v):
     return a
 
 def Lstar(M):
+  """
+  Compute the adjoint operator of L
+  """
   N = M.shape[1]
-  k = (N * (N - 1))//2
-  j,l=0,1
-  w=np.zeros(k)
+  k = (N * (N - 1)) // 2
+  j, l = 0, 1
+  w = np.zeros(k)
   for i in np.arange(k):
-    w[i] = M[j, j]+ M[l, l] - (M[l, j] + M[j, l])
+    w[i] = M[j, j] + M[l, l] - (M[l, j] + M[j, l])
     if (l == (N - 1)):
-        j+=1
+        j += 1
         l = j + 1
     else:
-      l+=1
+      l += 1
   return w
 
 #Computes the matrix form of the composition of the operators Lstar and
@@ -114,11 +117,11 @@ def vecLmat(n):
 # @return w the weight vector of the graph
 def Linv(M):
   n = M.shape[0]
-  return np.concatenate(np.array([-M[i][i+1:] for i in np.arange(n)]))
+  return np.concatenate([-M[i][i+1:] for i in np.arange(n)])
 
 #get the n(n-1)//2 vector from the laplacian(or A?)
 #M is laplacian
 #w is weight vector
 def Ainv(M):
   N = M.shape[0]
-  return np.concatenate(np.array([M[i][i+1:] for i in np.arange(n)]))
+  return np.concatenate([M[i][i+1:] for i in np.arange(n)])

@@ -7,8 +7,8 @@ def laplacian_likelihood(Lw,lambd,K):
     return np.sum(-np.log(lambd))+np.sum(np.diagonal(K@Lw))
 
 def laplacian_prior(beta,Lw,lambd,U):
-    to_cross=lambd**0.5*U.T
-    return 0.5*beta*np.linalg.norm(Lw-(to_cros.T@to_cross)**2)
+    to_cross = lambd**0.5 * U.T
+    return 0.5 * beta * np.linalg.norm(Lw - (to_cros.T @ to_cross)**2)
 
 def bipartite_obj_fun(Aw,Lw,V,psi,K,J,nu):
     return bipartite_likelihood(Lw=Lw,K=K,J=K)+bipartite_prior(nu=nu,Aw=Aw,psi=psi,V=V)

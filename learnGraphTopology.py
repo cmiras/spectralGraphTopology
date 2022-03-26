@@ -1,19 +1,26 @@
 from utilscc import*
 import numpy as np
-from ObjectiveFunction import*
-from time import*
-from operators import*
-from BlockCoordinateDescent import*
-from constrLaplacianRank import*
-from GraphLaplacianEstimation import*
-from utilscc import*
+from ObjectiveFunction import *
+from time import *
+from operators import *
+from BlockCoordinateDescent import *
+from constrLaplacianRank import *
+from GraphLaplacianEstimation import *
+from utilscc import *
+
 def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb = 0, ub = 1e4, alpha = 0,\
                                     beta = 1e4, beta_max = 1e6, fix_beta = True, rho = 1e-2, m = 7,\
                                     maxiter = 1e4, abstol = 1e-6, reltol = 1e-4, eigtol = 1e-9,\
                                     record_objective = False, record_weights = False, verbose = True):
-  if (is_data_matrix or S.shape[0]!=S.shape[1]):
+  """
+  Learn the Laplacian and adjacency matrix corresponding to a k-component graph
+  Params: #TODO
+    S: 
+    is_data_matrix:
+  """
+  if (is_data_matrix or S.shape[0] != S.shape[1]):
     A = build_initial_graph(S, m = m)
-    D = np.diag(.5 * (np.sum(A,axis=1)+ np.sum(A,axis=0)))
+    D = np.diag(.5 * (np.sum(A,axis=1) + np.sum(A,axis=0)))
     L = D - .5 * (A + A.T)
     S = np.linalg.pinv(L)
     is_data_matrix = True
@@ -40,7 +47,9 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
   for i in np.arange(maxiter):
     w = laplacian_w_update(w = w0, Lw = Lw0, U = U0, beta = beta,\
                             lambd = lambda0, K = K)
+    print(w.round(4))
     Lw = La(w)
+    print(Lw.round(4))
     U = laplacian_U_update(Lw = Lw, k = k)
     lambd = laplacian_lambda_update(lb = lb, ub = ub, beta = beta, U = U,\
                                       Lw = Lw, k = k)
@@ -65,9 +74,9 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
     U0 = U
     lambda0 = lambd
     Lw0 = Lw
-  # compute the adjancency matrix
+  # compute the adjacency matrix
   Aw = Ad(w)
-  results = {Laplacian : Lw, Adjacency : Aw, w : w, "lambd" : lambd, "U" : U,\
+  results = {"Laplacian" : Lw, "Adjacency" : Aw, "w" : w, "lambd" : lambd, "U" : U,\
                  "elapsed_time" : time_seq, "convergence" : has_w_converged,\
                   "beta_seq" : beta_seq}
   return results
@@ -125,11 +134,23 @@ def learn_cospectral_graph(S, lambd, k = 1, is_data_matrix = False, w0 = "naive"
     w0 = w
     U0 = U
     Lw0 = Lw
-  # compute the adjancency matrix
+  # compute the adjacency matrix
   Aw = Ad(w)
   results = {"Laplacian" : Lw, "Adjacency" : Aw, "w" : w, "lambd" : lambd, "U" : U,\
                   "elapsed_time" : time_seq, "convergence" : has_w_converged,\
                   "beta_seq" : beta_seq}
   return results
-l=np.ones([2,2])
-learn_k_component_graph(l)
+
+_=""" #testing functions
+
+size_matrix = 4
+l = np.ones([size_matrix*2, size_matrix*2])*0.1
+l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])
+l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])
+l = l + np.eye(2*size_matrix)*0.1
+
+n_samples = 100
+S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
+
+print(learn_k_component_graph(S, k=2, is_data_matrix=False, maxiter=10, m=3, lb=0.01)["Laplacian"])
+"""

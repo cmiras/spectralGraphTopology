@@ -1,8 +1,12 @@
-from qpsolvers import*
-from operators import*
+from qpsolvers import *
+from operators import *
 import numpy as np
+
 def w_init(w0, Sinv):
-  if type(w0) is type("ab"):
+  """
+  Initialize w0, the vectorized upper triangular coefficients of the adjacency matrix
+  """
+  if type(w0) is str:
     if (w0 == "qp"):
       R = vecLmat(Sinv.shape[1])
       qp = 0
@@ -11,16 +15,19 @@ def w_init(w0, Sinv):
       w0 = qp#qp$solution
     elif (w0 == "naive"):
       w0 = Linv(Sinv)
-      w0[w0 < 0] = 0
+      w0[w0 < 0] = 0 # Should not happen
   return w0
 
 
 
 def laplacian_w_update(w, Lw, U, beta, lambd, K):
-  t = lambd**0.5 * U.T
+  """
+  Update w according to equation 38
+  """
+  t = lambd[:, None]**0.5 * U.T
   c = Lstar(t.T@t - K / beta)
   grad_f = Lstar(Lw) - c
-  M_grad_f=- Lstar(La(grad_f))
+  M_grad_f = - Lstar(La(grad_f))
   wT_M_grad_f = np.sum(w * M_grad_f)
   dwT_M_dw = np.sum(grad_f * M_grad_f)
   # exact line search
@@ -59,6 +66,9 @@ def bipartite_w_update(w, Aw, V, nu, psi, K, J, Lips):
 
 
 def laplacian_U_update(Lw, k):
+  """
+  Return all but the k first eigenvectors of the Laplacian Lw
+  """
   return np.linalg.eigh(Lw)[1][:, k:]
 
 
@@ -79,15 +89,20 @@ def joint_V_update(Aw,z):
 
 
 def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
+  """
+  Update lambda according to algorithm 1
+  """
   q = Lw.shape[1] - k
   d = np.diagonal(U.T @ Lw @ U)
   # unconstrained solution as initial point
-  print(d,U.T @ Lw @ U)
   lambd = .5 * (d + (d**2 + 4 / beta)**0.5)
   eps = 1e-9
-  condition = [(lambd[q] - ub) <= eps,\
-                 (lambd[0] - lb) >= -eps,\
-                 (lambd[1:q] - lambd[0:(q-1)]) >= -eps]
+  condition_ub = np.array([(lambd[q-1] - ub) <= eps])
+  condition_lb = np.array([(lambd[0] - lb) >= -eps])
+  condition_ordered = (lambd[1:q] - lambd[0:(q-1)]) >= -eps
+  condition = np.concatenate([condition_ub,\
+                 condition_lb,\
+                 condition_ordered])
   if min(condition):
     return lambd
   else:
@@ -95,9 +110,12 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
     lesser_lb = lambd < lb
     lambd[greater_ub] = ub
     lambd[lesser_lb] = lb
-  condition = [(lambd[q] - ub) <= eps,\
-                 (lambd[0] - lb) >= -eps,\
-                 (lambd[1:q] - lambd[:(q-1)]) >= -eps]
+  condition_ub = np.array([(lambd[q-1] - ub) <= eps])
+  condition_lb = np.array([(lambd[0] - lb) >= -eps])
+  condition_ordered = (lambd[1:q] - lambd[:(q-1)]) >= -eps
+  condition = np.concatenate([condition_ub,\
+                 condition_lb,\
+                 condition_ordered])
   if min(condition):
     return (lambd)
   else:

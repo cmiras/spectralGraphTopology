@@ -2,18 +2,19 @@ from utilscc import*
 from time import*
 import numpy as np
 from qpsolvers import *
-def build_initial_graph(Y,m):
-    #if wellunderstood create the m nearest neighboor directed graph
-    n=Y.shape[0]
-    A=np.zeros(0,n,n)
-    E=pairwise_matrix_rownorm(Y)
-    for i in np.arange(0,n):
-        sorted_index=np.sort(E[i])
-        j_sweep = sorted_index[1,m+1]
-        den = m*E[i][sorted_index[m+2]]-np.sum(E[i][j_sweep])
-        ei= E[i,sorted_index[m+1]]
+
+def build_initial_graph(Y, m):
+    # if well understood create the m nearest neighboor directed graph
+    n = Y.shape[0]
+    A = np.zeros([n, n])
+    E = pairwise_matrix_rownorm(Y)
+    for i in np.arange(0, n):
+        sorted_index = np.argsort(E[i])
+        j_sweep = sorted_index[1:m+1]
+        den = m * E[i][sorted_index[m+1]] - np.sum(E[i][j_sweep]) # renormalization, but why is it like that?
+        ei = E[i, sorted_index[m+1]]
         for j in j_sweep:
-            A[i,j]=(ei-E[i,j])/den
+            A[i,j] = (ei - E[i, j]) / den
     return A
 
 def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
