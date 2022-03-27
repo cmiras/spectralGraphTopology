@@ -52,7 +52,7 @@ def Lstar(M):
 # @return M the composition of Lstar and L
 def Mmat(n):
   e = np.zeros(n)
-  M = np.zeros(n, n)
+  M = np.zeros([n, n])
   e[0] = 1
   M[0] = Lstar(La(e))
   for j in np.arange(1,n):
@@ -82,7 +82,7 @@ def Astar(M):
 # A, i.e., Astar o A.
 def Pmat(n):
   e = np.zeros(n)
-  M = np.zeros(n, n)
+  M = np.zeros([n, n])
   e[0] = 1;
   M[0] = Astar(Ad(e))
   for j in np.arange(1,n):
@@ -99,7 +99,7 @@ def vecLmat(n):
   nrows = n * n
 
   e = np.zeros(ncols)
-  R = np.zeros(nrows,ncols)
+  R = np.zeros([nrows,ncols])
   e[0] = 1;
   R[0] = vec(L(e));
   for j in np.arange(1,ncols):
@@ -123,5 +123,5 @@ def Linv(M):
 #M is laplacian
 #w is weight vector
 def Ainv(M):
-  N = M.shape[0]
+  n = M.shape[0]
   return np.concatenate([M[i][i+1:] for i in np.arange(n)])
