@@ -136,7 +136,7 @@ def bipartite_psi_update(V, Aw, lb = -np.inf, ub = np.inf):
   #x <- c(-rev(x), x) # R
   x[x < lb] = lb
   x[x > ub] = ub
-  return c
+  return x
 
 
 
