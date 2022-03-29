@@ -62,8 +62,9 @@ def joint_w_update(w, Lw, Aw, U, V, lambd, psi, beta, nu, K):
 
 
 def bipartite_w_update(w, Aw, V, nu, psi, K, J, Lips):
+  reg_eps = 1e-6
   grad_h = 2 * w - Astar(V @ np.diag(psi) @ V.T) #+ Lstar(K) / beta#
-  w_update = w - (Lstar(np.linalg.inv(La(w) + J+np.eye(J.shape[0])*10**-6) + K) + nu * grad_h) / (2 * nu + Lips)
+  w_update = w - (Lstar(np.linalg.inv(La(w) + J+np.eye(J.shape[0])*reg_eps) + K) + nu * grad_h) / (2 * nu + Lips)
   w_update[w_update < 0] = 0#TODO faire en sorte que la régularisation ligne précédent ne soit pas nécessaire
   return w_update
 

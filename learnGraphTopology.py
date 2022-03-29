@@ -6,6 +6,7 @@ from operators import *
 from BlockCoordinateDescent import *
 from constrLaplacianRank import *
 from GraphLaplacianEstimation import *
+from tqdm import tqdm
 
 def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb = 0, ub = 1e4, alpha = 0,\
                                     beta = 1e4, beta_max = 1e6, fix_beta = True, rho = 1e-2, m = 7,\
@@ -46,7 +47,7 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
   beta_seq = [beta]
   time_seq = [0]
   start_time = time()
-  for i in np.arange(maxiter):
+  for i in tqdm(range(maxiter)):
     #test_time = time()
     #test_total_time = time()
     w = laplacian_w_update(w = w0, Lw = Lw0, U = U0, beta = beta,\
@@ -352,6 +353,7 @@ def is_bipartite(A):
 #print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
 #print(learn_bipartite_graph(np.eye(3))["Laplacian"])
 #testing functions
+"""
 import matplotlib.pyplot as plt
 
 size = 10
@@ -368,7 +370,7 @@ l = - a + np.diag(a.sum(axis=0))
 n_samples = 1000
 S = np.random.multivariate_normal(np.zeros(2*n_compo*size), l, size=n_samples).T
 
-di=learn_bipartite_k_component_graph(S, k=n_compo, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
+di=learn_bipartite_k_component_graph(S, k=n_compo, is_data_matrix=True, maxiter=10**2, m=5,beta=10**0,lb=10-4)
 L=di["Laplacian"]
 print(di["convergence"])
 print(L)
@@ -376,6 +378,9 @@ print(np.diagonal(L))
 print(nb_connected_component(L))
 
 A = di["Adjacency"]
-print((A>0).astype('int'))
-plt.plot(np.sort(np.linalg.eig(A)[0]))
+eigenvalues = np.sort(np.linalg.eig(A)[0])
+plt.plot(eigenvalues, '+')
+plt.plot(-eigenvalues[::-1])
+plt.show()
 print(is_bipartite(A))
+"""
