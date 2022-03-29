@@ -1,4 +1,5 @@
 import numpy as np
+from numba import njit
 
 def blockDiagCpp(matrices):
     """matrcies:square np array list
@@ -72,6 +73,5 @@ def fscore(A,B,eps=1e-4):
 def prial(Ltrue, Lest, Lscm):
     """
     Compute the prial metric between Ltrue, Lest and Lscm.
-    More details #TODO
     """
     return 100 * (1 - (np.linalg.norm(Lest - Ltrue) / np.linalg.norm(Lscm - Ltrue)**2))

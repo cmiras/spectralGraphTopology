@@ -54,7 +54,6 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
     Lw = La(w)
     #test_La_time = time() - test_time
     #test_time = time()
-    #print(Lw.round(4))
     U = laplacian_U_update(Lw = Lw, k = k)
     #test_laplacian_U_update_time = time() - test_time
     #test_time = time()
@@ -64,7 +63,7 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
     #test_time = time()
     # check for convergence
     werr = abs(w0 - w)
-    has_w_converged = min(werr <= .5 * reltol * (w + w0)) or min(werr <= abstol)
+    has_w_converged = (np.all(werr <= .5 * reltol * (w + w0)) or np.all(werr <= abstol))
     time_seq.append(time()-start_time)
     if not(fix_beta):
       eigvals=np.linalg.eigh(Lw)[0]
@@ -83,11 +82,11 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
     U0 = U
     lambda0 = lambd
     Lw0 = Lw
-    #test_convergence_time = time() - test_time
-    #test_total_time = time() - test_total_time
-    
-    #print('total time', test_total_time)
-    _="""print('total ratio (1):', (test_laplacian_w_update_time + test_La_time + test_laplacian_U_update_time + test_laplacian_lambda_update_time + test_convergence_time)/test_total_time)
+    """
+    test_convergence_time = time() - test_time
+    test_total_time = time() - test_total_time
+    print('total time', test_total_time)
+    print('total ratio (1):', (test_laplacian_w_update_time + test_La_time + test_laplacian_U_update_time + test_laplacian_lambda_update_time + test_convergence_time)/test_total_time)
     print('laplacian_w_update', test_laplacian_w_update_time/test_total_time*100)
     print('La', test_La_time/test_total_time*100)
     print('laplacian_U_update', test_laplacian_U_update_time/test_total_time*100)
@@ -324,8 +323,10 @@ def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,\
                   "lambd" : lambd, "V" : V, "U" : U, "elapsed_time" : time_seq,
                   "beta_seq" : beta_seq, "convergence" : has_w_converged}
   return(results)
+
 def nb_connected_component(L):
     return np.sum(np.linalg.eigh(L)[0]<10**-12)
+
 def is_bipartite(A):
     n=A.shape[0]
     co=[-1]*n
@@ -348,7 +349,7 @@ def is_bipartite(A):
 
 #print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
 #print(learn_bipartite_graph(np.eye(3))["Laplacian"])
- #testing functions
+#testing functions
 
 size_matrix = 100
 l = np.ones([size_matrix*2, size_matrix*2])*0.1
@@ -358,7 +359,7 @@ l = l + np.eye(2*size_matrix)*0.1
 
 n_samples = 10000
 S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
-di=learn_k_component_graph(S, k=3, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
+di=learn_k_component_graph(S, k=5, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
 L=di["Laplacian"]
 print(di["convergence"])
 print(L)
