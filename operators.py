@@ -4,7 +4,7 @@ import numpy as np
 # a valid Adjacency matrix.
 # @param w weight vector of the graph
 # @return Aw the Adjacency matrix
-def Ad(v):
+def Ad(v):#TODO check new version still works
     """take an p(p-1)//2 array and return the adjacency matrice"""
     p=1
     while (p*(p-1))//2!=v.shape[0]:
@@ -13,10 +13,12 @@ def Ad(v):
     s=0
     for nb in range(p-1,0,-1):
         i=p-1-nb
-        for j in range(i+1,p):
+        a[i][i+1:]=v[s:s+p-i-1]
+        """for j in range(i+1,p):
             a[i][j] = v[s+j-i-1]
-            a[j][i] = v[s+j-i-1]
+            a[j][i] = v[s+j-i-1]"""
         s += nb
+    a+=a.T
     return a
 
 # Computes the Laplacian linear operator which maps a vector of weights into a valid Laplacian matrix.
@@ -28,7 +30,7 @@ def La(v):
         a[k][k]=-np.sum(a[k])
     return a
 
-def Lstar(M):
+def Lstar(M):#TODO numbaifier it's the time bottleneck of algorithm
   """
   Compute the adjoint operator of L
   """
@@ -61,7 +63,7 @@ def Mmat(n):
     M[j] = Lstar(L(e))
   return M.T
 
-def Astar(M):
+def Astar(M):#TODO numbaifier also
   N = M.shape[1]
   k = (N * (N - 1))//2
   j = 0

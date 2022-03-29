@@ -35,7 +35,7 @@ def learn_laplacian_gle_mm(S, A_mask = None, alpha = 0, maxiter = 10000, reltol 
   H = 2 * np.eye(p) - p * J
   K = S + alpha * H
   E = get_incidence_from_adjacency(A_mask)
-  R = t(E) @ K @ E
+  R = E.T @ K @ E
   r = R.shape[0]
   G = [E, np.arange(p)]
   assert False, "à vérifier"

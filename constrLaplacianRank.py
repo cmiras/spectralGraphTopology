@@ -17,13 +17,12 @@ def build_initial_graph(Y, m):
             A[i,j] = (ei - E[i, j]) / den
     return A
 
-def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
-                                      edgetol = 1e-6, maxiter = 1000):
+def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,edgetol = 1e-6, maxiter = 1000):
   time_seq =[0]
   start_time = time()
   A = build_initial_graph(Y, m)
   n = A.shape[1]
-  S = np.ones(n,n)/n
+  S = np.ones([n,n])/n
   DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0)))
   LS =  DS - .5 * (S + S.T)
   DA =- np.diag(.5 * (np.sum(A,axis=1) + np.sum(A,axis=0)))
@@ -33,16 +32,16 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
   else:
     F = np.linalg.eigh(LA)[1][:,0:k]
   # bounds for variables in the QP solver
-  bvec = np.concatenate(np.array([1]), np.zeros(n))
+  bvec = np.concatenate(np.array([1]), np.zeros([n]))
   Amat = np.concatenate([np.ones([n,1]),np.eye(n)],axis=1)
-  lmd_seq = np.array([lmd])
+  lmd_seq = [lmd]
   #pb <- progress::progress_bar$new(format = "<:bar> :current/:total  eta: :eta  lambda: :lmd  null_eigvals: :null_eigvals",
     #                               total = maxiter, clear = FALSE, width = 100)
   for ii in np.arange(1,maxiter+1):
     V = pairwise_matrix_rownorm(F)
     for i in np.arange(n):
-      p = A[i,: ] - .5 * lmd * V[i,:]
-      qp = solve_qp(P, q, G, h, A, b)#quadprog::solve.QP(Dmat = diag(n), dvec = p, Amat = Amat, bvec = bvec, meq = 1)
+      p = A[i,: ] - .5 * lmd * V[i,:]#TODO vérifier le QP
+      qp = solve_qp(np.eye(n), p, G, h, A, b)#quadprog::solve.QP(Dmat = diag(n), dvec = p, Amat = Amat, bvec = bvec, meq = 1)
       S[i, ] = qp#qp$solution
       DS = np.diag(.5 * (np.sum(S,axis=1) + np.sum(S,axis=0)))
       LS =  DS - .5 * (S + S.T)
@@ -61,3 +60,4 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,
   LS[abs(LS) < edgetol] = 0
   AS = np.diag(np.diagonal(LS)) - LS
   return {"Laplacian" : LS, "Adjacency" : AS, "eigenvalues" : eig_vals,"lmd_seq" : lmd_seq, "elapsed_time" : time_seq}
+print(cluster_k_component_graph(np.random.rand(6,3),k=2,m=2,maxiter=100)["Adjacency"])

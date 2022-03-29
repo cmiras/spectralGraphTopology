@@ -41,15 +41,15 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
   U0 = laplacian_U_update(Lw = Lw0, k = k)
   lambda0 = laplacian_lambda_update(lb = lb, ub = ub, beta = beta, U = U0,\
                                      Lw = Lw0, k = k)
+
   beta_seq = [beta]
   time_seq = [0]
   start_time = time()
   for i in np.arange(maxiter):
     w = laplacian_w_update(w = w0, Lw = Lw0, U = U0, beta = beta,\
-                            lambd = lambda0, K = K)
-    print(w.round(4))
+                            lambd = lambda0, K = K, p=S.shape[0])
     Lw = La(w)
-    print(Lw.round(4))
+    #print(Lw.round(4))
     U = laplacian_U_update(Lw = Lw, k = k)
     lambd = laplacian_lambda_update(lb = lb, ub = ub, beta = beta, U = U,\
                                       Lw = Lw, k = k)
@@ -233,11 +233,11 @@ def learn_bipartite_graph(S, is_data_matrix = False, z = 0, nu = 1e4, alpha = 0.
   return results
 
 
-def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,
-                                              w0 = "naive", m = 7, alpha = 0., beta = 1e4,
-                                              rho = 1e-2, fix_beta = True, beta_max = 1e6, nu = 1e4,
-                                              lb = 0, ub = 1e4, maxiter = 1e4, abstol = 1e-6,
-                                              reltol = 1e-4, eigtol = 1e-9,
+def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,\
+                                              w0 = "naive", m = 7, alpha = 0., beta = 1e4,\
+                                              rho = 1e-2, fix_beta = True, beta_max = 1e6, nu = 1e4,\
+                                              lb = 0, ub = 1e4, maxiter = 1e4, abstol = 1e-6,\
+                                              reltol = 1e-4, eigtol = 1e-9,\
                                               record_weights = False, record_objective = False, verbose = True):
   if is_data_matrix or S.shape[0] != S.shape[1]:
     A = build_initial_graph(S, m = m)
@@ -263,9 +263,9 @@ def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,
   Aw0 = Ad(w0)
   Lw0 = La(w0)
   V0 = joint_V_update(Aw0, z)
-  psi0 = joint_psi_update(V0, Aw0)
+  psi0 = bipartite_psi_update(V0, Aw0)
   U0 = joint_U_update(Lw0, k)
-  lambda0 = joint_lambda_update(lb, ub, beta, U0, Lw0, k)
+  lambda0 = laplacian_lambda_update(lb, ub, beta, U0, Lw0, k)
   beta_seq = [beta]
   time_seq = [0]
   start_time = time()
@@ -275,8 +275,8 @@ def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,
     Aw = Ad(w)
     U = joint_U_update(Lw, k)
     V = joint_V_update(Aw, z)
-    lambd = joint_lambda_update(lb, ub, beta, U, Lw, k)
-    psi = joint_psi_update(V, Aw)
+    lambd = laplacian_lambda_update(lb, ub, beta, U, Lw, k)
+    psi = bipartite_psi_update(V, Aw)
     time_seq.append(time()-start_time)
     werr = abs(w0 - w)
     has_w_converged = (np.all(werr <= .5 * reltol * (w + w0)) or np.all(werr <= abstol))
@@ -305,18 +305,43 @@ def learn_bipartite_k_component_graph(S, is_data_matrix = False, z = 0, k = 1,
                   "lambd" : lambd, "V" : V, "U" : U, "elapsed_time" : time_seq,
                   "beta_seq" : beta_seq, "convergence" : has_w_converged}
   return(results)
-#print(learn_bipartite_k_component_graph(np.eye(3)))
-print(learn_bipartite_graph(np.eye(3)))
-_=""" #testing functions
+def nb_connected_component(L):
+    return np.sum(np.linalg.eigh(L)[0]<10**-12)
+def is_bipartite(A):
+    n=A.shape[0]
+    co=[-1]*n
+    def parc(u):
+        for u in range(A.shape[0]):
+            if A[u][v]>0:
+                if co[v]==-1:
+                    co[v]=1-co[u]
+                    if not(parc(v)):
+                        return False
+                elif co[v]+co[u]!=1:
+                    return False
+        return True
+    for u in range(n):
+        if co[u]==-1:
+            co[u]=0
+            if not(parc(u)):
+                return False
+    return True
+
+print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
+print(learn_bipartite_graph(np.eye(3))["Laplacian"])
+ #testing functions
 
 size_matrix = 4
 l = np.ones([size_matrix*2, size_matrix*2])*0.1
-l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])
-l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])
+l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])*0.9
+l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])*0.9
 l = l + np.eye(2*size_matrix)*0.1
 
-n_samples = 100
+n_samples = 10
 S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
-
-print(learn_k_component_graph(S, k=2, is_data_matrix=False, maxiter=10, m=3, lb=0.01)["Laplacian"])
-"""
+di=learn_k_component_graph(S, k=2, is_data_matrix=True, maxiter=10**3, m=1,beta=10**0,lb=10-4)
+L=di["Laplacian"]
+print(di["convergence"])
+print(L)
+print(np.diagonal(L))
+print(nb_connected_component(L))

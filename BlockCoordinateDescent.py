@@ -20,26 +20,30 @@ def w_init(w0, Sinv):
 
 
 
-def laplacian_w_update(w, Lw, U, beta, lambd, K):
+def laplacian_w_update(w, Lw, U, beta, lambd, K, p):
   """
   Update w according to equation 38
   """
   t = lambd[:, None]**0.5 * U.T
   c = Lstar(t.T@t - K / beta)
+  #print(Lw)
   grad_f = Lstar(Lw) - c
-  M_grad_f = - Lstar(La(grad_f))
-  wT_M_grad_f = np.sum(w * M_grad_f)
-  dwT_M_dw = np.sum(grad_f * M_grad_f)
+  #M_grad_f = - Lstar(La(grad_f))
+  #wT_M_grad_f = np.sum(w * M_grad_f)
+  #dwT_M_dw = np.sum(grad_f * M_grad_f)
   # exact line search
-  t = (wT_M_grad_f - np.sum(c * grad_f)) / dwT_M_dw
+  #print(c,grad_f)
+  #t = (wT_M_grad_f - np.sum(c * grad_f)) / dwT_M_dw
+  t=1/(2*p)
   w_update = w - t * grad_f
+  #print(t,w_update,w,grad_f)
   w_update[w_update < 0] = 0
   return w_update
 
 
 
 def joint_w_update(w, Lw, Aw, U, V, lambd, psi, beta, nu, K):
-  t=lambd**0.5*U.T
+  t=lambd[:, None]**0.5*U.T
   ULmdUT = t.T@t
   VPsiVT = V @ np.diag(psi) @ V.T
   c1 = Lstar(beta * ULmdUT - K)
@@ -47,7 +51,7 @@ def joint_w_update(w, Lw, Aw, U, V, lambd, psi, beta, nu, K):
   Mw = Lstar(Lw)
   Pw = 2 * w
   grad_f1 = beta * Mw - c1
-  M_grad_f1 = Lstar(L(grad_f1))
+  M_grad_f1 = Lstar(La(grad_f1))
   grad_f2 = nu * Pw - c2
   P_grad_f2 = 2 * grad_f2
   grad_f = grad_f1 + grad_f2
@@ -58,9 +62,9 @@ def joint_w_update(w, Lw, Aw, U, V, lambd, psi, beta, nu, K):
 
 
 def bipartite_w_update(w, Aw, V, nu, psi, K, J, Lips):
-  grad_h = 2 * w - Astar(V @ diag(psi) @ V.T) #+ Lstar(K) / beta
-  w_update = w - (Lstar(np.linalg.inv(La(w) + J) + K) + nu * grad_h) / (2 * nu + Lips)
-  w_update[w_update < 0] = 0
+  grad_h = 2 * w - Astar(V @ np.diag(psi) @ V.T) #+ Lstar(K) / beta#
+  w_update = w - (Lstar(np.linalg.inv(La(w) + J+np.eye(J.shape[0])*10**-6) + K) + nu * grad_h) / (2 * nu + Lips)
+  w_update[w_update < 0] = 0#TODO faire en sorte que la régularisation ligne précédent ne soit pas nécessaire
   return w_update
 
 
@@ -75,8 +79,8 @@ def laplacian_U_update(Lw, k):
 def bipartite_V_update(Aw, z):
   n = Aw.shape[1]
   V = np.linalg.eigh(Aw)[1]
-  assert False, "j'ai pas compris"
-  return 0#cbind(V[, 1:(.5*(n - z))], V[, (1 + .5*(n + z)):n]))
+  #assert False, "j'ai pas compris"
+  return V#cbind(V[, 1:(.5*(n - z))], V[, (1 + .5*(n + z)):n]))
 
 
 def joint_U_update(Lw,k):
@@ -126,13 +130,13 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
 def bipartite_psi_update(V, Aw, lb = -np.Inf, ub = np.Inf):
   c = np.diagonal(V.T @ Aw @ V)
   n = c.shape[0]
-  c_tilde = .5 * (c[(n/2):][::-1] - c[:(n/2)])
-  assert False, "jai pas compris"
+  c_tilde = .5 * (c[(n//2):][::-1] - c[:(n//2)])
+  """assert False, "jai pas compris"
   #x <- stats::isoreg(rev(c_tilde))$yf
   #x <- c(-, x)
   x[x < lb] = lb
-  x[x > ub] = ub
-  return x
+  x[x > ub] = ub"""
+  return c
 
 
 
@@ -141,6 +145,6 @@ def bipartite_psi_update(V, Aw, lb = -np.Inf, ub = np.Inf):
 }
 
 
-joint.psi_update <- function(...) {
+def joint_psi_update(...):
   return(bipartite.psi_update(...))
-}"""
+"""

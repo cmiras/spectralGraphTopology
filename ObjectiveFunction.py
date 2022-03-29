@@ -13,7 +13,7 @@ def laplacian_prior(beta,Lw,lambd,U):
 def bipartite_obj_fun(Aw,Lw,V,psi,K,J,nu):
     return bipartite_likelihood(Lw=Lw,K=K,J=K)+bipartite_prior(nu=nu,Aw=Aw,psi=psi,V=V)
 
-def bipartite_likelihood(LW,K,J):
+def bipartite_likelihood(Lw,K,J):
     return np.sum(-np.log(np.linalg.eigh(Lw+J)[0])+np.diagonal(K@Lw))
 
 def bipartite_prior(nu, Aw, psi, V):
