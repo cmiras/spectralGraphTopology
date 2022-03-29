@@ -130,13 +130,13 @@ def bipartite_psi_update(V, Aw, lb = -np.inf, ub = np.inf):
   c = np.diagonal(V.T @ Aw @ V)
   n = c.shape[0]
   c_tilde = .5 * (c[(n//2):][::-1] - c[:(n//2)])
-  x = isoreg(c[::-1])
+  x = isoreg(c_tilde[::-1])
   #x <- stats::isoreg(rev(c_tilde))$yf # R
   x = np.concatenate((-x[::-1], x))
   #x <- c(-rev(x), x) # R
   x[x < lb] = lb
   x[x > ub] = ub
-  return c
+  return x
 
 
 

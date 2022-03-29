@@ -7,19 +7,19 @@ def blockDiagCpp(matrices):
     Params:
         matrices: list of square numpy arrays (the blocks of the output matrix)
     """
-    n=len(matrices)
-    sizes=[k.shape[0] for k in matrices]
-    N=sum(sizes)
-    if min(k.shape[0]==k.shape[1] for k in matrices):
+    n = len(matrices)
+    sizes = [k.shape[0] for k in matrices]
+    N = sum(sizes)
+    if np.any([k.shape[0]!=k.shape[1] for k in matrices]):
         raise ValueError('all matrices are not square.')
-    blockDiag=np.zeros(N,N)
+    blockDiag = np.zeros([N, N])
     i=0
     for m in matrices:
-        n=m.shape[0]
+        n = m.shape[0]
         for a in range(n):
             for b in range(n):
-                blockDiag[i+a][i+b]=m[a][b]
-        i+=m.shape[0]
+                blockDiag[i+a][i+b] = m[a][b]
+        i += m.shape[0]
     return blockDiag
 
 def pairwise_matrix_rownorm(M):

@@ -333,7 +333,7 @@ def is_bipartite(A):
     n=A.shape[0]
     co=[-1]*n
     def parc(u):
-        for u in range(A.shape[0]):
+        for v in range(n):
             if A[u][v]>0:
                 if co[v]==-1:
                     co[v]=1-co[u]
@@ -352,18 +352,30 @@ def is_bipartite(A):
 #print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
 #print(learn_bipartite_graph(np.eye(3))["Laplacian"])
 #testing functions
+import matplotlib.pyplot as plt
 
-size_matrix = 20
-l = np.ones([size_matrix*2, size_matrix*2])*0.1
-l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])*0.9
-l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])*0.9
-l = l + np.eye(2*size_matrix)*0.1
+size = 10
+n_compo = 3
+
+a = np.ones([size*2, size*2])*0
+a[size:, :size] = np.ones([size, size])
+a[:size, size:] = np.ones([size, size])
+
+a = blockDiagCpp([a]*3)
+
+l = - a + np.diag(a.sum(axis=0))
 
 n_samples = 1000
-S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
-di=learn_bipartite_k_component_graph(S, k=5, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
+S = np.random.multivariate_normal(np.zeros(2*n_compo*size), l, size=n_samples).T
+
+di=learn_bipartite_k_component_graph(S, k=n_compo, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
 L=di["Laplacian"]
 print(di["convergence"])
 print(L)
 print(np.diagonal(L))
 print(nb_connected_component(L))
+
+A = di["Adjacency"]
+print((A>0).astype('int'))
+plt.plot(np.sort(np.linalg.eig(A)[0]))
+print(is_bipartite(A))
