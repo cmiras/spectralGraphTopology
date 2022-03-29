@@ -2,8 +2,11 @@ import numpy as np
 from numba import njit
 
 def blockDiagCpp(matrices):
-    """matrcies:square np array list
-    return big np array diag by block with blocks given in matrices"""
+    """
+    Return he block diagonal matrix with blocs given in the input
+    Params:
+        matrcies: list of square numpy arrays(the blocks of the output matrix)
+    """
     n=len(matrices)
     sizes=[k.shape[0] for k in matrices]
     N=sum(sizes)
@@ -31,7 +34,7 @@ def pairwise_matrix_rownorm(M):
     V+=V.T
     return V
 
-def metrics(A,B,eps):
+def metrics(A, B, eps):
     p=A.shape[0]
     tp=0
     fp=0
@@ -67,7 +70,7 @@ def upper_view_vec(M):
     v = np.concatenate([M[i][i+1:p] for i in np.arange(p-1)])
     return v
 
-def fscore(A,B,eps=1e-4):
+def fscore(A, B, eps=1e-4):
     return metrics(A, B, eps)[0]
 
 def prial(Ltrue, Lest, Lscm):

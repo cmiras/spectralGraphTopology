@@ -16,6 +16,11 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
   Params: #TODO
     S:
     is_data_matrix:
+  Params:
+    S: Either the original correlation matrix or the raw data matrix
+    is_data_matrix: bool, if True then the correlations matrix is computed from S
+    k: number of components of the final graph
+    m: number of neighbors considered to build the matrix (only useful if is_data_matrix is true)
   """
   if (is_data_matrix or S.shape[0] != S.shape[1]):
     A = build_initial_graph(S, m = m)
