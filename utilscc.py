@@ -3,9 +3,9 @@ from numba import njit
 
 def blockDiagCpp(matrices):
     """
-    Return he block diagonal matrix with blocs given in the input
+    Return the block diagonal matrix with blocs given in the input
     Params:
-        matrcies: list of square numpy arrays(the blocks of the output matrix)
+        matrices: list of square numpy arrays (the blocks of the output matrix)
     """
     n=len(matrices)
     sizes=[k.shape[0] for k in matrices]

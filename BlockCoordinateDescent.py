@@ -126,15 +126,16 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
     raise ValueError('eigenvalues are not in increasing order consider increasing the value of beta')
 
 
-def bipartite_psi_update(V, Aw, lb = -np.Inf, ub = np.Inf):
+def bipartite_psi_update(V, Aw, lb = -np.inf, ub = np.inf):
   c = np.diagonal(V.T @ Aw @ V)
   n = c.shape[0]
   c_tilde = .5 * (c[(n//2):][::-1] - c[:(n//2)])
-  """assert False, "jai pas compris"
-  #x <- stats::isoreg(rev(c_tilde))$yf
-  #x <- c(-, x)
+  x = isoreg(c[::-1])
+  #x <- stats::isoreg(rev(c_tilde))$yf # R
+  x = np.concatenate((-x[::-1], x))
+  #x <- c(-rev(x), x) # R
   x[x < lb] = lb
-  x[x > ub] = ub"""
+  x[x > ub] = ub
   return c
 
 

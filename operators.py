@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.isotonic import *
 from numba import njit
 
 # Computes the Adjacency linear operator which maps a vector of weights into
@@ -130,3 +131,15 @@ def Linv(M):
 def Ainv(M):
   n = M.shape[0]
   return np.concatenate([M[i][i+1:] for i in np.arange(n)])
+
+
+def isoreg(y):
+    """
+    Compute the isotonic regression of a vector y
+    For compatibity reasons, we chosse an arbitrary x as training data
+    but x is useless as we only keep the estimates of the y_i and never interpolate
+    """
+    x = np.arange(len(y))
+    isoreg = IsotonicRegression()
+    isoreg.fit(x, y)
+    return isoreg.f_(x)

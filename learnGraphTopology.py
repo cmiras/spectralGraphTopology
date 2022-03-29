@@ -13,9 +13,6 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
                                     record_objective = False, record_weights = False, verbose = True):
   """
   Learn the Laplacian and adjacency matrix corresponding to a k-component graph
-  Params: #TODO
-    S:
-    is_data_matrix:
   Params:
     S: Either the original correlation matrix or the raw data matrix
     is_data_matrix: bool, if True then the correlations matrix is computed from S
