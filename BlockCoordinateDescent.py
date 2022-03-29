@@ -106,7 +106,7 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
   condition = np.concatenate([condition_ub,\
                  condition_lb,\
                  condition_ordered])
-  if min(condition):
+  if np.all(condition):
     return lambd
   else:
     greater_ub = lambd > ub
@@ -119,7 +119,7 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
   condition = np.concatenate([condition_ub,\
                  condition_lb,\
                  condition_ordered])
-  if min(condition):
+  if np.all(condition):
     return (lambd)
   else:
     print(lambd)
@@ -130,7 +130,7 @@ def bipartite_psi_update(V, Aw, lb = -np.inf, ub = np.inf):
   c = np.diagonal(V.T @ Aw @ V)
   n = c.shape[0]
   c_tilde = .5 * (c[(n//2):][::-1] - c[:(n//2)])
-  x = isoreg(c[::-1])
+  x = isoreg(c_tilde[::-1])
   #x <- stats::isoreg(rev(c_tilde))$yf # R
   x = np.concatenate((-x[::-1], x))
   #x <- c(-rev(x), x) # R
