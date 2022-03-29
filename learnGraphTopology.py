@@ -1,4 +1,4 @@
-from utilscc import*
+from utilscc import *
 import numpy as np
 from ObjectiveFunction import *
 from time import *
@@ -6,7 +6,6 @@ from operators import *
 from BlockCoordinateDescent import *
 from constrLaplacianRank import *
 from GraphLaplacianEstimation import *
-from utilscc import *
 
 def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb = 0, ub = 1e4, alpha = 0,\
                                     beta = 1e4, beta_max = 1e6, fix_beta = True, rho = 1e-2, m = 7,\
@@ -46,13 +45,23 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
   time_seq = [0]
   start_time = time()
   for i in np.arange(maxiter):
+    #test_time = time()
+    #test_total_time = time()
     w = laplacian_w_update(w = w0, Lw = Lw0, U = U0, beta = beta,\
                             lambd = lambda0, K = K, p=S.shape[0])
+    #test_laplacian_w_update_time= time() - test_time
+    #test_time = time()
     Lw = La(w)
+    #test_La_time = time() - test_time
+    #test_time = time()
     #print(Lw.round(4))
     U = laplacian_U_update(Lw = Lw, k = k)
+    #test_laplacian_U_update_time = time() - test_time
+    #test_time = time()
     lambd = laplacian_lambda_update(lb = lb, ub = ub, beta = beta, U = U,\
                                       Lw = Lw, k = k)
+    #test_laplacian_lambda_update_time = time() - test_time
+    #test_time = time()
     # check for convergence
     werr = abs(w0 - w)
     has_w_converged = min(werr <= .5 * reltol * (w + w0)) or min(werr <= abstol)
@@ -74,6 +83,16 @@ def learn_k_component_graph (S, is_data_matrix = False, k = 1, w0 = "naive", lb 
     U0 = U
     lambda0 = lambd
     Lw0 = Lw
+    #test_convergence_time = time() - test_time
+    #test_total_time = time() - test_total_time
+    
+    #print('total time', test_total_time)
+    _="""print('total ratio (1):', (test_laplacian_w_update_time + test_La_time + test_laplacian_U_update_time + test_laplacian_lambda_update_time + test_convergence_time)/test_total_time)
+    print('laplacian_w_update', test_laplacian_w_update_time/test_total_time*100)
+    print('La', test_La_time/test_total_time*100)
+    print('laplacian_U_update', test_laplacian_U_update_time/test_total_time*100)
+    print('laplacian_lambda_update', test_laplacian_lambda_update_time/test_total_time*100)
+    print('convergence', test_convergence_time/test_total_time*100)"""
   # compute the adjacency matrix
   Aw = Ad(w)
   results = {"Laplacian" : Lw, "Adjacency" : Aw, "w" : w, "lambd" : lambd, "U" : U,\
@@ -327,19 +346,19 @@ def is_bipartite(A):
                 return False
     return True
 
-print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
-print(learn_bipartite_graph(np.eye(3))["Laplacian"])
+#print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
+#print(learn_bipartite_graph(np.eye(3))["Laplacian"])
  #testing functions
 
-size_matrix = 4
+size_matrix = 100
 l = np.ones([size_matrix*2, size_matrix*2])*0.1
 l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])*0.9
 l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])*0.9
 l = l + np.eye(2*size_matrix)*0.1
 
-n_samples = 10
+n_samples = 10000
 S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
-di=learn_k_component_graph(S, k=2, is_data_matrix=True, maxiter=10**3, m=1,beta=10**0,lb=10-4)
+di=learn_k_component_graph(S, k=3, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
 L=di["Laplacian"]
 print(di["convergence"])
 print(L)

@@ -1,4 +1,6 @@
 import numpy as np
+from time import *
+from numba import njit
 
 # Computes the Adjacency linear operator which maps a vector of weights into
 # a valid Adjacency matrix.
@@ -30,7 +32,8 @@ def La(v):
         a[k][k]=-np.sum(a[k])
     return a
 
-def Lstar(M):#TODO numbaifier it's the time bottleneck of algorithm
+@njit
+def Lstar(M):
   """
   Compute the adjoint operator of L
   """
@@ -63,7 +66,9 @@ def Mmat(n):
     M[j] = Lstar(L(e))
   return M.T
 
+@njit
 def Astar(M):#TODO numbaifier also
+  start_time = time()
   N = M.shape[1]
   k = (N * (N - 1))//2
   j = 0
@@ -77,6 +82,7 @@ def Astar(M):#TODO numbaifier also
       l = j+1
     else:
       l+=1
+  #print('Astart time', time() - start_time)
   return w
 
 

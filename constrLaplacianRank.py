@@ -60,4 +60,4 @@ def cluster_k_component_graph(Y, k = 1, m = 5, lmd = 1, eigtol = 1e-9,edgetol = 
   LS[abs(LS) < edgetol] = 0
   AS = np.diag(np.diagonal(LS)) - LS
   return {"Laplacian" : LS, "Adjacency" : AS, "eigenvalues" : eig_vals,"lmd_seq" : lmd_seq, "elapsed_time" : time_seq}
-print(cluster_k_component_graph(np.random.rand(6,3),k=2,m=2,maxiter=100)["Adjacency"])
+# print(cluster_k_component_graph(np.random.rand(6,3),k=2,m=2,maxiter=100)["Adjacency"])
