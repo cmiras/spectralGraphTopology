@@ -351,15 +351,15 @@ def is_bipartite(A):
 #print(learn_bipartite_graph(np.eye(3))["Laplacian"])
 #testing functions
 
-size_matrix = 100
+size_matrix = 20
 l = np.ones([size_matrix*2, size_matrix*2])*0.1
 l[:size_matrix, :size_matrix] = np.ones([size_matrix, size_matrix])*0.9
 l[size_matrix:, size_matrix:] = np.ones([size_matrix, size_matrix])*0.9
 l = l + np.eye(2*size_matrix)*0.1
 
-n_samples = 10000
+n_samples = 1000
 S = np.random.multivariate_normal(np.zeros(2*size_matrix), l, size=n_samples).T
-di=learn_k_component_graph(S, k=5, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
+di=learn_bipartite_k_component_graph(S, k=5, is_data_matrix=True, maxiter=10**3, m=5,beta=10**0,lb=10-4)
 L=di["Laplacian"]
 print(di["convergence"])
 print(L)

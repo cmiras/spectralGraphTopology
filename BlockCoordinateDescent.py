@@ -79,8 +79,7 @@ def laplacian_U_update(Lw, k):
 def bipartite_V_update(Aw, z):
   n = Aw.shape[1]
   V = np.linalg.eigh(Aw)[1]
-  #assert False, "j'ai pas compris"
-  return V#cbind(V[, 1:(.5*(n - z))], V[, (1 + .5*(n + z)):n]))
+  return np.concatenate([V[:, :(n - z)//2], V[:,(n + z)//2:n]],axis=1)
 
 
 def joint_U_update(Lw,k):
