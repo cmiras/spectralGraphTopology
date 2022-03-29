@@ -106,7 +106,7 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
   condition = np.concatenate([condition_ub,\
                  condition_lb,\
                  condition_ordered])
-  if min(condition):
+  if np.all(condition):
     return lambd
   else:
     greater_ub = lambd > ub
@@ -119,7 +119,7 @@ def laplacian_lambda_update(lb, ub, beta, U, Lw, k):
   condition = np.concatenate([condition_ub,\
                  condition_lb,\
                  condition_ordered])
-  if min(condition):
+  if np.all(condition):
     return (lambd)
   else:
     print(lambd)
