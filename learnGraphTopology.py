@@ -353,7 +353,7 @@ def is_bipartite(A):
 #print(learn_bipartite_k_component_graph(np.eye(3))["Laplacian"])
 #print(learn_bipartite_graph(np.eye(3))["Laplacian"])
 #testing functions
-"""
+_="""
 import matplotlib.pyplot as plt
 
 size = 10
